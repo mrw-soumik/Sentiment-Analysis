@@ -1,67 +1,68 @@
-
-# Import necessary libraries
+import pandas as pd
 import nltk
+import re
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from nltk.stem import PorterStemmer
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score, classification_report
-import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report, accuracy_score
 
-# Download required NLTK data
+# Download necessary NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
 
-# Define preprocessing functions
+# Load dataset from the file
+file_path = 'sentiment_dataset.txt'
+df = pd.read_csv(file_path, delimiter=r'\s{2,}', header=None, names=['text', 'label'], engine='python')
+df.dropna(inplace=True)
+
+# Preprocess text
 def preprocess_text(text):
-    stop_words = set(stopwords.words("english"))
-    stemmer = PorterStemmer()
-    words = word_tokenize(text.lower())
-    filtered_words = [stemmer.stem(word) for word in words if word.isalpha() and word not in stop_words]
-    return " ".join(filtered_words)
+    text = re.sub(r'\W', ' ', text)
+    text = re.sub(r'\s+', ' ', text)
+    text = text.lower()
+    tokens = word_tokenize(text)
+    stop_words = set(stopwords.words('english'))
+    tokens = [word for word in tokens if word not in stop_words]
+    return ' '.join(tokens)
 
-# Sample dataset (can be replaced with a more extensive dataset)
-data = {
-    'text': [
-        "I love this product! It's amazing.",
-        "Terrible experience, would not recommend.",
-        "I'm not sure how I feel about this.",
-        "Great service and friendly staff!",
-        "This was the worst purchase I've ever made.",
-        "It was okay, nothing special."
-    ],
-    'label': ['positive', 'negative', 'neutral', 'positive', 'negative', 'neutral']
-}
-
-# Load data into a DataFrame and preprocess text
-df = pd.DataFrame(data)
+# Apply preprocessing
 df['processed_text'] = df['text'].apply(preprocess_text)
 
 # Split data into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(df['processed_text'], df['label'], test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(df['processed_text'], df['label'], test_size=0.2, random_state=42, stratify=df['label'])
 
-# Vectorize the text data
-vectorizer = CountVectorizer()
+# Vectorize the text data using TF-IDF
+vectorizer = TfidfVectorizer()
 X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
-# Train a Naive Bayes classifier
-model = MultinomialNB()
-model.fit(X_train_vec, y_train)
+# Initialize classifiers
+classifiers = {
+    "Naive Bayes": MultinomialNB(),
+    "Logistic Regression": LogisticRegression(max_iter=200),
+    "SVM": SVC(kernel='linear')
+}
 
-# Make predictions and evaluate the model
-y_pred = model.predict(X_test_vec)
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Model Accuracy: {accuracy * 100:.2f}%")
-print("Classification Report:\n", classification_report(y_test, y_pred))
+# Train and evaluate each classifier
+for name, clf in classifiers.items():
+    clf.fit(X_train_vec, y_train)
+    y_pred = clf.predict(X_test_vec)
+    print(f"--- {name} ---")
+    print(f"Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+    print(classification_report(y_test, y_pred))
 
-# Function to predict sentiment of new text
+# Choose the best-performing model for prediction
+best_model = classifiers["Logistic Regression"]
+
+# Define a function to predict sentiment
 def predict_sentiment(text):
     processed_text = preprocess_text(text)
     text_vec = vectorizer.transform([processed_text])
-    prediction = model.predict(text_vec)
+    prediction = best_model.predict(text_vec)
     return prediction[0]
 
 # Example usage

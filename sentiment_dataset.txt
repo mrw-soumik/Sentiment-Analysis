@@ -1,0 +1,14 @@
+
+I absolutely love this product! It works great.    positive
+Amazing quality and fantastic customer service!     positive
+I'm so happy with my purchase, exceeded expectations.   positive
+Best decision I've made, totally worth it!  positive
+Incredible experience, would buy again!     positive
+Highly recommend, wonderful and reliable product.    positive
+Five stars! I'm thrilled with the results.   positive
+Just perfect! Couldn’t be happier.   positive
+Everything about this product is top-notch.  positive
+Fantastic! It made my day better.    positive
+Very pleased with this item, excellent value.    positive
+... (data truncated for brevity; repeat format for 100 positive, 100 neutral, and 100 negative samples)
+    
