@@ -1,4 +1,4 @@
-# Sentiment Analysis Project
+# Sentiment Analysis Tool
 
 ## Project Overview
 This project is a **Sentiment Analysis Tool** designed to classify text into three sentiment categories: **positive**, **neutral**, and **negative**. It leverages Natural Language Processing (NLP) for text preprocessing and machine learning models to classify text based on sentiment. The tool is useful for understanding opinions in text data, such as customer feedback or social media posts.
